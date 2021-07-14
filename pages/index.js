@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet } from "../src/lib/AlurakutCommons";
 
@@ -30,8 +30,42 @@ function ProfileSideBar(props) {
   );
 }
 
+function ProfileRelationsBox(props) {
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className="smallTitle">
+        {props.title} ({props.items.length})
+      </h2>
+
+      <ul>
+        {/* Percorre oa rray, e retorna ele transformado (os mesmos itens, de forma diferente) */}
+        {followers.map((itemAtual) => {
+          return (
+            <li key={itemAtual} >
+              <a href={`https://github.com/${itemAtual}.png`}>
+                <img src={itemAtual} />
+                <span>{itemAtual.title}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  );
+}
+
 export default function Home() {
   const githubUser = "pedromaranini";
+  const [followers, setFollowers] = useState([]);
+    useEffect(() => {
+      fetch('https://api.github.com/users/pedromaranini/followers')
+      .then((respostaDoServidor) => {
+        return respostaDoServidor.json()
+      })
+      .then((respostaCompleta) => {
+        setFollowers(respostaCompleta);
+      })
+    }, [])
 
   const [community, setComunnity] = useState([{
     id: '123123123',
@@ -63,7 +97,7 @@ export default function Home() {
         <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
           <Box>
             <h1 className="title">
-              Bem vindo(a)
+              Bem vindo(a), Pedro
             </h1>
 
             <OrkutNostalgicIconSet />
@@ -73,7 +107,7 @@ export default function Home() {
             <h2 className="subTitle">
               O que você deseja fazer?
             </h2>
-            <form 
+            <form
               onSubmit={function handleSubmitForm(e) {
                 e.preventDefault();
                 // Dados do formulário
@@ -89,19 +123,19 @@ export default function Home() {
                 const newComunnity = [...community, addComunity];
                 setComunnity(newComunnity);
               }}
-              >
+            >
               <div>
-                <input 
+                <input
                   name="title"
-                  aria-label="Qual vai ser o nome da sua comunidade?"                  
+                  aria-label="Qual vai ser o nome da sua comunidade?"
                   placeholder="Qual vai ser o nome da sua comunidade?"
                   type="text"
                 />
               </div>
               <div>
-                <input 
+                <input
                   name="image"
-                  aria-label="Coloque uma URL para usarmos de capa"                  
+                  aria-label="Coloque uma URL para usarmos de capa"
                   placeholder="Coloque uma URL para usarmos de capa"
                 />
               </div>
@@ -117,24 +151,28 @@ export default function Home() {
           className="profileRelationsArea"
           style={{ gridArea: "profileRelationsArea" }}
         >
+          <ProfileRelationsBox 
+            items={followers}
+            title="Seguidores"
+          />
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">
               Comunidades ({community.length})
             </h2>
 
             <ul>
-                {/* Percorre oa rray, e retorna ele transformado (os mesmos itens, de forma diferente) */}
-                {community.map((itemAtual) => {
-                  return (
-                    <li key={itemAtual.id} >
-                      <a href={`/users/${itemAtual.title}`}>
-                        <img src={itemAtual.image}/>
-                        <span>{itemAtual.title}</span>
-                      </a>
-                    </li>                  
-                  );
-                })}
-              </ul>
+              {/* Percorre oa rray, e retorna ele transformado (os mesmos itens, de forma diferente) */}
+              {community.map((itemAtual) => {
+                return (
+                  <li key={itemAtual.id} >
+                    <a href={`/users/${itemAtual.title}`}>
+                      <img src={itemAtual.image} />
+                      <span>{itemAtual.title}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
           </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
@@ -151,7 +189,7 @@ export default function Home() {
                       <img src={`https://github.com/${itemAtual}.png`} />
                       <span>{itemAtual}</span>
                     </a>
-                  </li>                  
+                  </li>
                 );
               })}
             </ul>
